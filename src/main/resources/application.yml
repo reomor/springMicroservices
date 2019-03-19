@@ -3,5 +3,9 @@ catalogs:
   processed: classpath:/processed/
 
 spring:
+  h2:
+    console:
+      enabled: true
+      path: /h2-console
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
