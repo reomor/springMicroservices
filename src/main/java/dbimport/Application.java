@@ -1,17 +1,24 @@
 package dbimport;
 
+import dbimport.config.Config;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-
+@EnableConfigurationProperties(Config.class)
 @SpringBootApplication
 public class Application {
-    private static final Logger logger = LoggerFactory.getLogger(Application.class);
+    private Config config;
+
+    @Autowired
+    public Application(Config config) {
+        this.config = config;
+    }
 
     public static void main(String[] args) {
-        logger.info("Logger works");
         SpringApplication.run(Application.class, args);
     }
 }

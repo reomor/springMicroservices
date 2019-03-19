@@ -1,3 +1,7 @@
+catalogs:
+  input: classpath:/input/
+  processed: classpath:/processed/
+
 spring:
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml
