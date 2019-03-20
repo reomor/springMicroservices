@@ -1,11 +1,11 @@
 catalogs:
-  input: /input/
-  processed: /processed/
+  input: D:\input
+  processed: D:\processed
 
 spring:
   batch:
     job:
-      enabled: true
+      enabled: false
   h2:
     console:
       enabled: true
