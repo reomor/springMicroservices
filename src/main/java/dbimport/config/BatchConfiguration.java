@@ -11,20 +11,21 @@ import org.springframework.batch.core.configuration.annotation.EnableBatchProces
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
 import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
-import org.springframework.batch.core.configuration.support.MapJobRegistry;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
 import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
+import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
@@ -47,6 +48,9 @@ public class BatchConfiguration {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
+    @Value("${catalogs.input}/*.csv")
+    private Resource[] resources;
+
     @Bean
     public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor(JobRegistry jobRegistry) {
         JobRegistryBeanPostProcessor bpp = new JobRegistryBeanPostProcessor();
@@ -55,10 +59,17 @@ public class BatchConfiguration {
     }
 
     @Bean
+    public MultiResourceItemReader<TestObject> csvMultiResourceReader() {
+        MultiResourceItemReader<TestObject> resourceItemReader = new MultiResourceItemReader<>();
+        resourceItemReader.setResources(resources);
+        resourceItemReader.setDelegate(csvReader());
+        return resourceItemReader;
+    }
+
+    @Bean
     public FlatFileItemReader<TestObject> csvReader() {
         FlatFileItemReader<TestObject> reader = new FlatFileItemReader<>();
         reader.setLinesToSkip(1);
-        reader.setResource(new ClassPathResource("input/source.csv"));
         reader.setLineMapper(new DefaultLineMapper<TestObject>() {
             {
                 setLineTokenizer(new DelimitedLineTokenizer() {
@@ -92,6 +103,7 @@ public class BatchConfiguration {
 
     @Component
     class CsvLoadJobNotificationListener extends JobExecutionListenerSupport {
+
         @Override
         public void beforeJob(JobExecution jobExecution) {
             System.out.println("s" + jobExecution.getJobId());
@@ -111,18 +123,27 @@ public class BatchConfiguration {
     public Step csvLoadBatchStep() {
         return stepBuilderFactory.get("csvLoadBatchStep")
                 .<TestObject, TestObject>chunk(2)
-                .reader(csvReader())
+                .reader(csvMultiResourceReader())
                 .processor(csvProcessor())
                 .writer(csvWriter())
                 .build();
     }
 
     @Bean
-    public Job csvToDbUpload(CsvLoadJobNotificationListener listener, Step step) {
+    public Step csvMoveAfterProcessStep() {
+        final CsvFileMovingAfterJob csvFileMovingAfterJob = new CsvFileMovingAfterJob();
+        return stepBuilderFactory.get("csvMoveAfterProcessStep")
+                .tasklet(csvFileMovingAfterJob)
+                .build();
+    }
+
+    @Bean
+    public Job csvToDbUpload(CsvLoadJobNotificationListener listener) {
         return jobBuilderFactory.get("csvToDbUpload")
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
-                .flow(step)
+                .flow(csvLoadBatchStep())
+                .next(csvMoveAfterProcessStep())
                 .end()
                 .build();
     }

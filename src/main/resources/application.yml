@@ -1,8 +1,11 @@
 catalogs:
-  input: classpath:/input/
-  processed: classpath:/processed/
+  input: /input/
+  processed: /processed/
 
 spring:
+  batch:
+    job:
+      enabled: true
   h2:
     console:
       enabled: true

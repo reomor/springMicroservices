@@ -16,18 +16,11 @@ public class CatalogParser {
     }
 
     public void moveFile(Path filePath, String catalogToMovePath) {
-        logger.info("Moving file(" + filePath + "to catalog(" + catalogToMovePath + ")");
+        logger.info("Moving file(" + filePath + " to catalog(" + catalogToMovePath + ")");
         try {
             Files.move(filePath, Paths.get(catalogToMovePath, filePath.getFileName().toString()));
         } catch (IOException e) {
             logger.warn("Error during moving file(" + filePath +"): " + e);
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        CatalogParser catalogParser = new CatalogParser();
-        final Stream<Path> pathStream = catalogParser.listFiles("D:\\_actual");
-        pathStream.forEach(path -> System.out.println(path.getFileName()));
-        catalogParser.moveFile(Paths.get("D:\\tmp"), "D:\\_actual");
     }
 }
