@@ -8,24 +8,19 @@ import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.context.properties.EnableConfigurationProperties;
 
-@EnableConfigurationProperties(Config.class)
 @SpringBootApplication
+@EnableConfigurationProperties(Config.class)
 public class Application implements CommandLineRunner {
-    private Config config;
-    @Autowired
-    private JobService jobService;
 
     @Autowired
-    public Application(Config config) {
-        this.config = config;
-    }
+    private JobService jobService;
 
     public static void main(String[] args){
         SpringApplication.run(Application.class, args);
     }
 
     @Override
-    public void run(String... args) throws Exception {
+    public void run(String... args){
         jobService.startImport();
     }
 }

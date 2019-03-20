@@ -3,12 +3,13 @@ catalogs:
   processed: D:\processed
 
 spring:
+  datasource:
+    driverClassName: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:mem:db/test
+    username: sa
+    password:
   batch:
     job:
       enabled: false
-  h2:
-    console:
-      enabled: true
-      path: /h2-console
   liquibase:
     change-log: classpath:/db/changelog/db.changelog-master.xml

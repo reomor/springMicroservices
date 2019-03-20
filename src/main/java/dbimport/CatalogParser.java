@@ -17,7 +17,7 @@ public class CatalogParser {
     private String processedCatalog;
 
     public Stream<Path> listFiles(String catalogPath) throws IOException {
-        logger.info("Parsing catalog(" + catalogPath + ")");
+        logger.info("Parsing catalog (" + catalogPath + ")");
         return Files.list(Paths.get(catalogPath)).filter(Files::isRegularFile);
     }
 
@@ -29,12 +29,5 @@ public class CatalogParser {
         } catch (IOException e) {
             logger.warn("Error during moving file(" + filePath +"): " + e);
         }
-    }
-
-    public static void main(String[] args) throws IOException {
-        CatalogParser catalogParser = new CatalogParser();
-        final Stream<Path> pathStream = catalogParser.listFiles("D:\\_actual");
-        pathStream.forEach(path -> System.out.println(path.getFileName()));
-        catalogParser.moveFile(Paths.get("D:\\tmp"));
     }
 }

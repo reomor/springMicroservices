@@ -4,6 +4,7 @@ import dbimport.CatalogParser;
 import dbimport.domain.TestObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.batch.core.BatchStatus;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.JobExecution;
 import org.springframework.batch.core.Step;
@@ -19,7 +20,6 @@ import org.springframework.batch.item.ItemProcessor;
 import org.springframework.batch.item.database.BeanPropertyItemSqlParameterSourceProvider;
 import org.springframework.batch.item.database.JdbcBatchItemWriter;
 import org.springframework.batch.item.file.FlatFileItemReader;
-import org.springframework.batch.item.file.MultiResourceItemReader;
 import org.springframework.batch.item.file.mapping.BeanWrapperFieldSetMapper;
 import org.springframework.batch.item.file.mapping.DefaultLineMapper;
 import org.springframework.batch.item.file.transform.DelimitedLineTokenizer;
@@ -40,6 +40,7 @@ import java.nio.file.Paths;
 @EnableBatchProcessing
 public class BatchConfiguration {
     private static final Logger logger = LoggerFactory.getLogger(BatchConfiguration.class);
+    public static final String CSV_UPLOAD_JOB = "csvToDbUpload";
 
     @Autowired
     private JobBuilderFactory jobBuilderFactory;
@@ -109,21 +110,23 @@ public class BatchConfiguration {
 
         @Override
         public void beforeJob(JobExecution jobExecution) {
-            System.out.println("s" + jobExecution.getJobId());
+            logger.info("Start job(id=" + jobExecution.getJobId() + ") for: " + jobExecution.getJobParameters().getString("resource"));
             final Integer rowsCount = jdbcTemplate.queryForObject("SELECT count(*) FROM db", Integer.class);
-            System.out.println("Number of records: " + rowsCount);
+            logger.info("Number of records in DB before job: " + rowsCount);
         }
 
         @Override
         public void afterJob(JobExecution jobExecution) {
-            System.out.println(resource.getFilename());
-            System.out.println("e" + jobExecution.getJobId());
+            if(jobExecution.getStatus() == BatchStatus.COMPLETED) {
+                logger.info("Completed job(id=" + jobExecution.getJobId() + ") for: " + jobExecution.getJobParameters().getString("resource"));
+            }
             final Integer rowsCount = jdbcTemplate.queryForObject("SELECT count(*) FROM db", Integer.class);
-            System.out.println("Number of records: " + rowsCount);
+            logger.info("Number of records in DB after job: " + rowsCount);
             try {
+                logger.info("Moving file to processed catalog");
                 catalogParser.moveFile(Paths.get(resource.getURI()));
             } catch (IOException e) {
-                e.printStackTrace();
+                logger.warn("Error during moving file: " + e.getMessage());
             }
         }
     }
@@ -141,7 +144,7 @@ public class BatchConfiguration {
 
     @Bean
     public Job csvToDbUpload(CsvLoadJobNotificationListener listener) {
-        return jobBuilderFactory.get("csvToDbUpload")
+        return jobBuilderFactory.get(CSV_UPLOAD_JOB)
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
                 .flow(csvLoadBatchStep())
