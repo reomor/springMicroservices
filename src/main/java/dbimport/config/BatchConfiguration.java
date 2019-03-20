@@ -1,5 +1,6 @@
 package dbimport.config;
 
+import dbimport.CatalogParser;
 import dbimport.domain.TestObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -10,6 +11,7 @@ import org.springframework.batch.core.configuration.JobRegistry;
 import org.springframework.batch.core.configuration.annotation.EnableBatchProcessing;
 import org.springframework.batch.core.configuration.annotation.JobBuilderFactory;
 import org.springframework.batch.core.configuration.annotation.StepBuilderFactory;
+import org.springframework.batch.core.configuration.annotation.StepScope;
 import org.springframework.batch.core.configuration.support.JobRegistryBeanPostProcessor;
 import org.springframework.batch.core.launch.support.RunIdIncrementer;
 import org.springframework.batch.core.listener.JobExecutionListenerSupport;
@@ -25,11 +27,14 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.Resource;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Component;
 
 import javax.sql.DataSource;
+import java.io.IOException;
+import java.nio.file.Paths;
 
 @Configuration
 @EnableBatchProcessing
@@ -48,8 +53,11 @@ public class BatchConfiguration {
     @Autowired
     private JdbcTemplate jdbcTemplate;
 
-    @Value("${catalogs.input}/*.csv")
-    private Resource[] resources;
+    @Autowired
+    private CatalogParser catalogParser;
+
+    // injected by csvReader!
+    private Resource resource;
 
     @Bean
     public JobRegistryBeanPostProcessor jobRegistryBeanPostProcessor(JobRegistry jobRegistry) {
@@ -59,17 +67,12 @@ public class BatchConfiguration {
     }
 
     @Bean
-    public MultiResourceItemReader<TestObject> csvMultiResourceReader() {
-        MultiResourceItemReader<TestObject> resourceItemReader = new MultiResourceItemReader<>();
-        resourceItemReader.setResources(resources);
-        resourceItemReader.setDelegate(csvReader());
-        return resourceItemReader;
-    }
-
-    @Bean
-    public FlatFileItemReader<TestObject> csvReader() {
+    @StepScope
+    public FlatFileItemReader<TestObject> csvReader(@Value("#{jobParameters['resource']}") String fileName) {
         FlatFileItemReader<TestObject> reader = new FlatFileItemReader<>();
         reader.setLinesToSkip(1);
+        resource = new FileSystemResource(fileName);
+        reader.setResource(resource);
         reader.setLineMapper(new DefaultLineMapper<TestObject>() {
             {
                 setLineTokenizer(new DelimitedLineTokenizer() {
@@ -113,9 +116,15 @@ public class BatchConfiguration {
 
         @Override
         public void afterJob(JobExecution jobExecution) {
+            System.out.println(resource.getFilename());
             System.out.println("e" + jobExecution.getJobId());
             final Integer rowsCount = jdbcTemplate.queryForObject("SELECT count(*) FROM db", Integer.class);
             System.out.println("Number of records: " + rowsCount);
+            try {
+                catalogParser.moveFile(Paths.get(resource.getURI()));
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -123,19 +132,12 @@ public class BatchConfiguration {
     public Step csvLoadBatchStep() {
         return stepBuilderFactory.get("csvLoadBatchStep")
                 .<TestObject, TestObject>chunk(2)
-                .reader(csvMultiResourceReader())
+                .reader(csvReader(null)) // will be injected in step
                 .processor(csvProcessor())
                 .writer(csvWriter())
                 .build();
     }
 
-    @Bean
-    public Step csvMoveAfterProcessStep() {
-        final CsvFileMovingAfterJob csvFileMovingAfterJob = new CsvFileMovingAfterJob();
-        return stepBuilderFactory.get("csvMoveAfterProcessStep")
-                .tasklet(csvFileMovingAfterJob)
-                .build();
-    }
 
     @Bean
     public Job csvToDbUpload(CsvLoadJobNotificationListener listener) {
@@ -143,7 +145,6 @@ public class BatchConfiguration {
                 .incrementer(new RunIdIncrementer())
                 .listener(listener)
                 .flow(csvLoadBatchStep())
-                .next(csvMoveAfterProcessStep())
                 .end()
                 .build();
     }
