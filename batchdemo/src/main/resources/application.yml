@@ -1,0 +1,15 @@
+catalogs:
+  input: D:\input
+  processed: D:\processed
+
+spring:
+  datasource:
+    driverClassName: org.hsqldb.jdbc.JDBCDriver
+    url: jdbc:hsqldb:mem:db/test
+    username: sa
+    password:
+  batch:
+    job:
+      enabled: false
+  liquibase:
+    change-log: classpath:/db/changelog/db.changelog-master.xml
