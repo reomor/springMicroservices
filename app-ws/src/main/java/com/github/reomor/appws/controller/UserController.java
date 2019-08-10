@@ -1,7 +1,13 @@
 package com.github.reomor.appws.controller;
 
+import com.github.reomor.appws.controller.model.UserDetailsRequestModel;
+import com.github.reomor.appws.controller.model.WebUserModel;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping("/users")
@@ -21,15 +27,34 @@ public class UserController {
                     MediaType.APPLICATION_JSON_VALUE
             }
     )
-    public WebUser getUserById(@PathVariable Integer userId) {
-        WebUser webUser = new WebUser(userId, "Ivan", "Ivanov", "a@ya.ru");
-        webUser.setUserId(1);
-        return webUser;
+    public ResponseEntity<WebUserModel> getUserById(@PathVariable Integer userId) {
+        if (userId % 2 == 1) {
+            return new ResponseEntity<>(null, HttpStatus.BAD_REQUEST);
+        }
+        WebUserModel webUserModel = new WebUserModel(userId, "Ivan", "Ivanov", "a@ya.ru");
+        webUserModel.setUserId(1);
+        return new ResponseEntity<>(webUserModel, HttpStatus.OK);
     }
 
-    @PostMapping
-    public String createUser() {
-        return "create user was called";
+    @PostMapping(
+            consumes = {
+                    MediaType.APPLICATION_XML_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE
+            },
+            produces = {
+                    MediaType.APPLICATION_XML_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public ResponseEntity<WebUserModel> createUser(
+            @Valid @RequestBody UserDetailsRequestModel userDetails
+    ) {
+        WebUserModel webUserModel = new WebUserModel();
+        webUserModel.setUserId(666);
+        webUserModel.setEmail(userDetails.getEmail());
+        webUserModel.setFirstName(userDetails.getFirstName());
+        webUserModel.setLastName(userDetails.getLastName());
+        return new ResponseEntity<>(webUserModel, HttpStatus.CREATED);
     }
 
     @PutMapping
