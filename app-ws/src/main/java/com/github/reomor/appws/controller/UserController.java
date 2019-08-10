@@ -1,5 +1,6 @@
 package com.github.reomor.appws.controller;
 
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -10,12 +11,20 @@ public class UserController {
             @RequestParam(value = "page", defaultValue = "1") Integer page,
             @RequestParam(value = "limit", required = false) String limit
     ) {
-        return "get user was called with page(" + page + "), limit(" + limit +")";
+        return "get user was called with page(" + page + "), limit(" + limit + ")";
     }
 
-    @GetMapping(path = "/{userId}")
-    public String getUserById(@PathVariable String userId) {
-        return "get user was called with userId(" + userId + ")";
+    @GetMapping(
+            path = "/{userId}",
+            produces = {
+                    MediaType.APPLICATION_XML_VALUE,
+                    MediaType.APPLICATION_JSON_VALUE
+            }
+    )
+    public WebUser getUserById(@PathVariable Integer userId) {
+        WebUser webUser = new WebUser(userId, "Ivan", "Ivanov", "a@ya.ru");
+        webUser.setUserId(1);
+        return webUser;
     }
 
     @PostMapping
