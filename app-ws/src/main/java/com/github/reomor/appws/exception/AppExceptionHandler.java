@@ -26,14 +26,26 @@ public class AppExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     /**
-     * handle specific exception
+     * handle specific exceptions
      * @param exception
      * @param webRequest
      * @return
      */
-    @ExceptionHandler(value = {NullPointerException.class})
+    @ExceptionHandler(value = {NullPointerException.class, OneMoreCustomException.class})
     public ResponseEntity<Object> handleNPE(Exception exception, WebRequest webRequest) {
         CustomErrorMessage errorMessage = new CustomErrorMessage("NPE - use Kotlin", LocalDateTime.now());
+        return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    /**
+     * handle my custom exception
+     * @param exception
+     * @param webRequest
+     * @return
+     */
+    @ExceptionHandler(value = {MyCustomException.class})
+    public ResponseEntity<Object> handleMyCustomException(MyCustomException exception, WebRequest webRequest) {
+        CustomErrorMessage errorMessage = new CustomErrorMessage(exception.getMessage(), LocalDateTime.now());
         return new ResponseEntity<>(errorMessage, new HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }

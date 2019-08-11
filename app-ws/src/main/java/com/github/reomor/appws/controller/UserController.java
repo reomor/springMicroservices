@@ -1,8 +1,12 @@
 package com.github.reomor.appws.controller;
 
+import com.github.reomor.appws.exception.MyCustomException;
+import com.github.reomor.appws.exception.OneMoreCustomException;
 import com.github.reomor.appws.model.request.UpdateUserDetailsRequestModel;
 import com.github.reomor.appws.model.request.UserDetailsRequestModel;
 import com.github.reomor.appws.model.response.WebUserModel;
+import com.github.reomor.appws.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -17,6 +21,9 @@ import java.util.UUID;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    @Autowired
+    private UserService userService;
+
     private Map<UUID, WebUserModel> users = new HashMap<>();
 
     @GetMapping
@@ -35,9 +42,11 @@ public class UserController {
     )
     public ResponseEntity<WebUserModel> getUserById(@PathVariable UUID userId) {
         // generate error manually
-        if (new Random().nextInt() % 2 == 1) {
-            String string = null;
-            string.length();
+        if (new Random().nextInt() % 3 == 0) {
+            throw new MyCustomException("My custom exception");
+        }
+        if (new Random().nextInt() % 3 == 1) {
+            throw new OneMoreCustomException("One more custom exception");
         }
         if (users.containsKey(userId)) {
             return new ResponseEntity<>(users.get(userId), HttpStatus.OK);
@@ -57,13 +66,7 @@ public class UserController {
     public ResponseEntity<WebUserModel> createUser(
             @Valid @RequestBody UserDetailsRequestModel userDetails
     ) {
-        WebUserModel webUserModel = new WebUserModel();
-        final UUID userId = UUID.randomUUID();
-        webUserModel.setUserId(userId);
-        webUserModel.setEmail(userDetails.getEmail());
-        webUserModel.setFirstName(userDetails.getFirstName());
-        webUserModel.setLastName(userDetails.getLastName());
-        users.put(userId, webUserModel);
+        final WebUserModel webUserModel = userService.createUser(userDetails);
         return new ResponseEntity<>(webUserModel, HttpStatus.CREATED);
     }
 
