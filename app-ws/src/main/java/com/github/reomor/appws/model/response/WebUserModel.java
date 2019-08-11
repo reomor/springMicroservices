@@ -1,4 +1,4 @@
-package com.github.reomor.appws.controller.model;
+package com.github.reomor.appws.model.response;
 
 import java.util.UUID;
 

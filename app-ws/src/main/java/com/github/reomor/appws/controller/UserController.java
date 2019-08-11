@@ -1,8 +1,8 @@
 package com.github.reomor.appws.controller;
 
-import com.github.reomor.appws.controller.model.UpdateUserDetailsRequestModel;
-import com.github.reomor.appws.controller.model.UserDetailsRequestModel;
-import com.github.reomor.appws.controller.model.WebUserModel;
+import com.github.reomor.appws.model.request.UpdateUserDetailsRequestModel;
+import com.github.reomor.appws.model.request.UserDetailsRequestModel;
+import com.github.reomor.appws.model.response.WebUserModel;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
