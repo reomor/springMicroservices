@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Random;
 import java.util.UUID;
 
 @RestController
@@ -33,6 +34,11 @@ public class UserController {
             }
     )
     public ResponseEntity<WebUserModel> getUserById(@PathVariable UUID userId) {
+        // generate error manually
+        if (new Random().nextInt() % 2 == 1) {
+            String string = null;
+            string.length();
+        }
         if (users.containsKey(userId)) {
             return new ResponseEntity<>(users.get(userId), HttpStatus.OK);
         } else {
