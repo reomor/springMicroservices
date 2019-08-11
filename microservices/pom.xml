@@ -16,5 +16,6 @@
     <modules>
         <module>eureka</module>
         <module>users</module>
+        <module>account</module>
     </modules>
 </project>
