@@ -1,7 +1,9 @@
 package com.github.reomor.appws.controller.model;
 
+import java.util.UUID;
+
 public class WebUserModel {
-    private Integer userId;
+    private UUID userId;
     private String firstName;
     private String lastName;
     private String email;
@@ -9,18 +11,18 @@ public class WebUserModel {
     public WebUserModel() {
     }
 
-    public WebUserModel(Integer userId, String firstName, String lastName, String email) {
+    public WebUserModel(UUID userId, String firstName, String lastName, String email) {
         this.userId = userId;
         this.firstName = firstName;
         this.lastName = lastName;
         this.email = email;
     }
 
-    public Integer getUserId() {
+    public UUID getUserId() {
         return userId;
     }
 
-    public void setUserId(Integer userId) {
+    public void setUserId(UUID userId) {
         this.userId = userId;
     }
 
