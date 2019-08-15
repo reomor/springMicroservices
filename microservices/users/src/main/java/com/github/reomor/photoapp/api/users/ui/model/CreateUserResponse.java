@@ -1,16 +1,10 @@
-package com.github.reomor.photoapp.api.users.shared;
+package com.github.reomor.photoapp.api.users.ui.model;
 
-import java.io.Serializable;
-
-public class UserDto implements Serializable {
-    private static final long serialVersionUID = -4672721086872573782L;
-
+public class CreateUserResponse {
     private String userId;
     private String firstName;
     private String lastName;
     private String email;
-    private String password;
-    private String encryptedPassword;
 
     public String getUserId() {
         return userId;
@@ -42,21 +36,5 @@ public class UserDto implements Serializable {
 
     public void setEmail(String email) {
         this.email = email;
-    }
-
-    public String getPassword() {
-        return password;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public String getEncryptedPassword() {
-        return encryptedPassword;
-    }
-
-    public void setEncryptedPassword(String encryptedPassword) {
-        this.encryptedPassword = encryptedPassword;
     }
 }
