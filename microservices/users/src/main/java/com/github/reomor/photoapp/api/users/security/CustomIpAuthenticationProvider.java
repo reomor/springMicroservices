@@ -2,6 +2,7 @@ package com.github.reomor.photoapp.api.users.security;
 
 import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
@@ -33,7 +34,7 @@ public class CustomIpAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public boolean supports(Class<?> aClass) {
-        return true;
+    public boolean supports(Class<?> authenticationClass) {
+        return authenticationClass.equals(UsernamePasswordAuthenticationToken.class);
     }
 }

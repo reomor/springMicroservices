@@ -51,6 +51,11 @@
             <version>1.4.193</version>
             <scope>runtime</scope>
         </dependency>
+        <dependency>
+            <groupId>io.jsonwebtoken</groupId>
+            <artifactId>jjwt</artifactId>
+            <version>0.9.1</version>
+        </dependency>
         <!-- ADDITIONAL -->
         <dependency>
             <groupId>org.springframework.boot</groupId>
