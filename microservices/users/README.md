@@ -16,3 +16,13 @@ spread changes in application.properties to all micro
 ```
 POST: localhost:8012/actuator/bus-refresh
 ```
+### Properties for config server
+```
+application.properties - local file, lowest priority 
+application.properties - config server, for all microservices
+<microservice-name>.properties - config server, for microservices with spring.application.name=<microservice-name>
+```
+```
+GET: localhost:8012/ConfigServer/default
+GET: localhost:8012/users-ms/default
+```
