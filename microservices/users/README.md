@@ -16,6 +16,11 @@ spread changes in application.properties to all micro
 ```
 POST: localhost:8012/actuator/bus-refresh
 ```
+run rabbitMQ plugin
+```
+rabbitmq-plugins enable rabbitmq_management
+```
+
 ### Properties for config server
 ```
 application.properties - local file, lowest priority 
@@ -26,5 +31,8 @@ application.properties - config server, for all microservices
 GET: localhost:8012/ConfigServer/default
 GET: localhost:8012/users-ms/default
 ```
+/diskC-tmp/application.properties <br>
+/diskC-tmp/users-ms.properties <br>
+
 ### Actuator
 [Spring-Boot actuator endpoints]([https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) <br>
