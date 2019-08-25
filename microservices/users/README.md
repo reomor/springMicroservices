@@ -26,3 +26,5 @@ application.properties - config server, for all microservices
 GET: localhost:8012/ConfigServer/default
 GET: localhost:8012/users-ms/default
 ```
+### Actuator
+[Spring-Boot actuator endpoints]([https://docs.spring.io/spring-boot/docs/current/reference/html/production-ready-endpoints.html) <br>
