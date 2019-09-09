@@ -19,5 +19,6 @@
         <module>gateway</module>
         <module>users</module>
         <module>account</module>
+        <module>albums</module>
     </modules>
 </project>
