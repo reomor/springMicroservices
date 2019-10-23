@@ -4,6 +4,7 @@ import com.github.reomor.photoapp.api.users.service.UserService;
 import com.github.reomor.photoapp.api.users.shared.UserDto;
 import com.github.reomor.photoapp.api.users.ui.model.CreateUserRequest;
 import com.github.reomor.photoapp.api.users.ui.model.CreateUserResponse;
+import com.github.reomor.photoapp.api.users.ui.model.UserResponseModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,5 +41,15 @@ public class UserController {
         final UserDto userDto = modelMapper.map(userRequest, UserDto.class);
         final UserDto createdUser = userService.createUser(userDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(modelMapper.map(createdUser, CreateUserResponse.class));
+    }
+
+    @GetMapping(
+            value = "/{userId",
+            produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
+    )
+    public ResponseEntity<UserResponseModel> getUser(@PathVariable("userId") String userId) {
+        final UserDto userDto = userService.getUserById(userId);
+        final UserResponseModel responseModel = new ModelMapper().map(userDto, UserResponseModel.class);
+        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
     }
 }
