@@ -1,6 +1,10 @@
 package com.github.reomor.photoapp.api.users.ui.model;
 
-public class AlbumResponseModel {
+import java.io.Serializable;
+
+public class AlbumResponseModel implements Serializable {
+    private static final long serialVersionUID = -7974250393022441177L;
+
     private String albumId;
     private String userId;
     private String name;

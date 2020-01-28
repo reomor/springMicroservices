@@ -44,7 +44,7 @@ public class UserController {
     }
 
     @GetMapping(
-            value = "/{userId",
+            value = "/{userId}",
             produces = {MediaType.APPLICATION_JSON_VALUE, MediaType.APPLICATION_XML_VALUE}
     )
     public ResponseEntity<UserResponseModel> getUser(@PathVariable("userId") String userId) {
