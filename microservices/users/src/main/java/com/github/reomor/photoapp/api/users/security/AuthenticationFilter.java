@@ -1,6 +1,7 @@
 package com.github.reomor.photoapp.api.users.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.reomor.photoapp.api.users.exception.BaseAuthenticationException;
 import com.github.reomor.photoapp.api.users.service.UserService;
 import com.github.reomor.photoapp.api.users.shared.UserDto;
 import com.github.reomor.photoapp.api.users.ui.model.LoginRequestModel;
@@ -15,7 +16,6 @@ import org.springframework.security.core.userdetails.User;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
@@ -23,9 +23,10 @@ import java.util.ArrayList;
 import java.util.Date;
 
 /**
- * Аутентификационный фильтр
+ * Filter for chain to set user authentication
  */
 public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
+
     private final Environment environment;
     private final UserService userService;
 
@@ -40,6 +41,8 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
     }
 
     /**
+     * Attempt to authenticate user by email and password
+     *
      * @param request
      * @param response
      * @return
@@ -65,17 +68,25 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                             )
                     );
         } catch (IOException e) {
-            throw new RuntimeException(e);
+            throw new BaseAuthenticationException(e);
         }
     }
 
+    /**
+     * Set header token for successful authentication
+     *
+     * @param request
+     * @param response
+     * @param chain
+     * @param authentication
+     */
     @Override
     protected void successfulAuthentication(
             HttpServletRequest request,
             HttpServletResponse response,
             FilterChain chain,
             Authentication authentication
-    ) throws IOException, ServletException {
+    ) {
         String userName = ((User) authentication.getPrincipal()).getUsername();
         final UserDto userDto = userService.getUserDetailsByEmail(userName);
         final String token = Jwts.builder()
@@ -84,6 +95,7 @@ public class AuthenticationFilter extends UsernamePasswordAuthenticationFilter {
                         Long.parseLong(environment.getProperty("token.expiration_time"))))
                 .signWith(SignatureAlgorithm.HS512, environment.getProperty("token.secret"))
                 .compact();
+
         response.addHeader("token", token);
         response.addHeader("userId", userDto.getUserId());
     }

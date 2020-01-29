@@ -43,6 +43,9 @@ public class UserServiceImpl implements UserService {
         this.environment = environment;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDto createUser(UserDto userDto) {
         userDto.setUserId(UUID.randomUUID().toString());
@@ -54,16 +57,21 @@ public class UserServiceImpl implements UserService {
         return modelMapper.map(savedUser, UserDto.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDto getUserDetailsByEmail(String email) {
         final UserEntity userEntity = userRepository.findByEmail(email);
-
         if (userEntity == null) {
             throw new UsernameNotFoundException(email);
         }
         return new ModelMapper().map(userEntity, UserDto.class);
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDto getUserById(String userId) {
         final UserEntity userEntity = userRepository.findByUserId(userId);
@@ -85,6 +93,9 @@ public class UserServiceImpl implements UserService {
         return userDto;
     }
 
+    /**
+     * {@inheritDoc}
+     */
     @Override
     public UserDetails loadUserByUsername(String username) {
         final UserEntity userEntity = userRepository.findByEmail(username);

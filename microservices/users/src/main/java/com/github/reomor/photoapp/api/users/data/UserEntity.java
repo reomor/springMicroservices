@@ -3,6 +3,9 @@ package com.github.reomor.photoapp.api.users.data;
 import javax.persistence.*;
 import java.io.Serializable;
 
+/**
+ * User
+ */
 @Entity
 @Table(name = "USERS")
 public class UserEntity implements Serializable {

@@ -1,6 +1,7 @@
 package com.github.reomor.photoapp.api.users.ui.model;
 
 public class CreateUserResponse {
+
     private String userId;
     private String firstName;
     private String lastName;

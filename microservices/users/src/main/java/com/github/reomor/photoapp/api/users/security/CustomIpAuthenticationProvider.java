@@ -4,7 +4,6 @@ import org.springframework.security.authentication.AuthenticationProvider;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.stereotype.Component;
 
@@ -13,6 +12,7 @@ import java.util.Set;
 
 @Component
 public class CustomIpAuthenticationProvider implements AuthenticationProvider {
+
     private Set<String> whitelist = new HashSet<>();
 
     public CustomIpAuthenticationProvider() {
@@ -24,7 +24,7 @@ public class CustomIpAuthenticationProvider implements AuthenticationProvider {
     }
 
     @Override
-    public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+    public Authentication authenticate(Authentication authentication) {
         WebAuthenticationDetails details = (WebAuthenticationDetails) authentication.getDetails();
         String userIp = details.getRemoteAddress();
         if (!whitelist.contains(userIp)) {

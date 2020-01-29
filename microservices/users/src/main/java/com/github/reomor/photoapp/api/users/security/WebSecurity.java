@@ -13,29 +13,26 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 @Configuration
 @EnableWebSecurity
 public class WebSecurity extends WebSecurityConfigurerAdapter {
+
     private final Environment environment;
-    private final CustomIpAuthenticationProvider authenticationProvider;
     private final UserService userService;
     private final BCryptPasswordEncoder passwordEncoder;
 
     @Autowired
     public WebSecurity(
             Environment environment,
-            CustomIpAuthenticationProvider authenticationProvider,
             UserService userService,
             BCryptPasswordEncoder passwordEncoder
     ) {
         this.environment = environment;
-        this.authenticationProvider = authenticationProvider;
         this.userService = userService;
         this.passwordEncoder = passwordEncoder;
     }
 
     @Override
     protected void configure(AuthenticationManagerBuilder auth) throws Exception {
-        // fixme
-        //auth.authenticationProvider(authenticationProvider);
-        auth.userDetailsService(userService).passwordEncoder(passwordEncoder);
+        auth.userDetailsService(userService)
+                .passwordEncoder(passwordEncoder);
     }
 
     @Override
@@ -52,7 +49,7 @@ public class WebSecurity extends WebSecurityConfigurerAdapter {
                 userService,
                 authenticationManager()
         );
-        //authenticationFilter.setAuthenticationManager(authenticationManager());
+
         final String filterProcessesUrl = environment.getProperty("login.url.path");
         if (filterProcessesUrl != null && !filterProcessesUrl.isBlank()) {
             authenticationFilter.setFilterProcessesUrl(filterProcessesUrl);

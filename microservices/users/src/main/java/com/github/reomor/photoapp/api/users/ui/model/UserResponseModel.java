@@ -3,6 +3,7 @@ package com.github.reomor.photoapp.api.users.ui.model;
 import java.util.List;
 
 public class UserResponseModel {
+
     private String userId;
     private String firstName;
     private String lastName;

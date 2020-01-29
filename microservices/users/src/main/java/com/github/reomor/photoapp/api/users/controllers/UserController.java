@@ -19,10 +19,18 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+
+    private final Environment environment;
+    private final UserService userService;
+
     @Autowired
-    private Environment environment;
-    @Autowired
-    private UserService userService;
+    public UserController(
+            Environment environment,
+            UserService userService
+    ) {
+        this.environment = environment;
+        this.userService = userService;
+    }
 
     @GetMapping("/status/check")
     public String getStatus() {
@@ -40,7 +48,8 @@ public class UserController {
         modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
         final UserDto userDto = modelMapper.map(userRequest, UserDto.class);
         final UserDto createdUser = userService.createUser(userDto);
-        return ResponseEntity.status(HttpStatus.CREATED).body(modelMapper.map(createdUser, CreateUserResponse.class));
+        return ResponseEntity.status(HttpStatus.CREATED)
+                .body(modelMapper.map(createdUser, CreateUserResponse.class));
     }
 
     @GetMapping(
@@ -50,6 +59,7 @@ public class UserController {
     public ResponseEntity<UserResponseModel> getUser(@PathVariable("userId") String userId) {
         final UserDto userDto = userService.getUserById(userId);
         final UserResponseModel responseModel = new ModelMapper().map(userDto, UserResponseModel.class);
-        return ResponseEntity.status(HttpStatus.OK).body(responseModel);
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(responseModel);
     }
 }
