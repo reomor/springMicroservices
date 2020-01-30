@@ -1,25 +1,19 @@
 package com.github.reomor.photoapp.api.users.service;
 
+import com.github.reomor.photoapp.api.users.data.AlbumsServiceClient;
 import com.github.reomor.photoapp.api.users.data.UserEntity;
 import com.github.reomor.photoapp.api.users.data.UserRepository;
 import com.github.reomor.photoapp.api.users.shared.UserDto;
-import com.github.reomor.photoapp.api.users.ui.model.AlbumResponseModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.core.ParameterizedTypeReference;
-import org.springframework.core.env.Environment;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.client.RestTemplate;
 
 import java.util.ArrayList;
-import java.util.List;
 import java.util.UUID;
 
 @Service
@@ -27,20 +21,17 @@ public class UserServiceImpl implements UserService {
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
-    private final RestTemplate restTemplate;
-    private final Environment environment;
+    private final AlbumsServiceClient albumsServiceClient;
 
     @Autowired
     public UserServiceImpl(
             UserRepository userRepository,
             BCryptPasswordEncoder passwordEncoder,
-            RestTemplate restTemplate,
-            Environment environment
+            AlbumsServiceClient albumsServiceClient
     ) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
-        this.restTemplate = restTemplate;
-        this.environment = environment;
+        this.albumsServiceClient = albumsServiceClient;
     }
 
     /**
@@ -80,15 +71,7 @@ public class UserServiceImpl implements UserService {
         }
 
         final UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
-        String albumsUrl = String.format(environment.getProperty("albums.url"), userId);
-        final ResponseEntity<List<AlbumResponseModel>> responseEntity = restTemplate.exchange(
-                albumsUrl,
-                HttpMethod.GET,
-                null,
-                new ParameterizedTypeReference<List<AlbumResponseModel>>() {
-                }
-        );
-        userDto.setAlbums(responseEntity.getBody());
+        userDto.setAlbums(albumsServiceClient.getAlbums(userId));
 
         return userDto;
     }
