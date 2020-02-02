@@ -77,13 +77,7 @@ public class UserServiceImpl implements UserService {
         }
 
         final UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
-        List<AlbumResponseModel> albums;
-        try {
-            albums = albumsServiceClient.getAlbums(userId);
-        } catch (Exception e) {
-            logger.error("Error getting albums", e);
-            albums = new ArrayList<>();
-        }
+        List<AlbumResponseModel> albums = albumsServiceClient.getAlbums(userId);
         userDto.setAlbums(albums);
 
         return userDto;
