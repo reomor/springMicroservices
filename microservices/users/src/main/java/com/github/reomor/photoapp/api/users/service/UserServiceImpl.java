@@ -4,8 +4,11 @@ import com.github.reomor.photoapp.api.users.data.AlbumsServiceClient;
 import com.github.reomor.photoapp.api.users.data.UserEntity;
 import com.github.reomor.photoapp.api.users.data.UserRepository;
 import com.github.reomor.photoapp.api.users.shared.UserDto;
+import com.github.reomor.photoapp.api.users.ui.model.AlbumResponseModel;
 import org.modelmapper.ModelMapper;
 import org.modelmapper.convention.MatchingStrategies;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -14,10 +17,13 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.UUID;
 
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserServiceImpl.class);
 
     private final UserRepository userRepository;
     private final BCryptPasswordEncoder passwordEncoder;
@@ -71,7 +77,14 @@ public class UserServiceImpl implements UserService {
         }
 
         final UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
-        userDto.setAlbums(albumsServiceClient.getAlbums(userId));
+        List<AlbumResponseModel> albums;
+        try {
+            albums = albumsServiceClient.getAlbums(userId);
+        } catch (Exception e) {
+            logger.error("Error getting albums", e);
+            albums = new ArrayList<>();
+        }
+        userDto.setAlbums(albums);
 
         return userDto;
     }
