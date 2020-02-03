@@ -6,6 +6,8 @@
 > - Zuul Gateway
 > - Actuator 
 > - RabbitMQ
+> - Feign
+> - Zipkin
 
 ### Useful commands
 ```
@@ -67,3 +69,19 @@ keytool -importkeystore -srckeystore apiEncryptionKey.jks -destkeystore apiEncry
 POST: http://localhost:8012/encrypt
 POST: http://localhost:8012/decrypt
 ```
+
+### Zipkin
+- TraceID - unique one for the whole chain of requests and responses 
+- SpanID - unique between two microservices
+
+[Zipkin quickstart](https://zipkin.io/pages/quickstart.html)
+
+```
+docker run -d -p 9411:9411 openzipkin/zipkin
+```
+or
+```
+curl -sSL https://zipkin.io/quickstart.sh | bash -s
+java -jar zipkin.jar
+```
+

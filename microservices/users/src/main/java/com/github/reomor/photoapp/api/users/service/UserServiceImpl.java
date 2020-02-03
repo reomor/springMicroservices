@@ -77,7 +77,9 @@ public class UserServiceImpl implements UserService {
         }
 
         final UserDto userDto = new ModelMapper().map(userEntity, UserDto.class);
+        logger.info("Before calling albums-ms");
         List<AlbumResponseModel> albums = albumsServiceClient.getAlbums(userId);
+        logger.info("After calling albums-ms");
         userDto.setAlbums(albums);
 
         return userDto;
